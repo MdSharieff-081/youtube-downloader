@@ -1,0 +1,148 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Downloader</title>
+ 
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <div class="container">
+      <h2>YouTube Video Downloader</h2>
+      <div class="input-group">
+        <div class="input-wrapper">
+          <input type="text" id="video-url" placeholder="Enter YouTube URL" />
+        </div>
+        <div class="button-group">
+          <button id="get-formats-btn">Get Formats</button>
+        </div>
+        <div class="select-wrapper">
+          <select id="format-select">
+            <option disabled selected>Select a format</option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button id="download-btn">Download</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="footer-content">
+      <div class="company-name">Movie World</div>
+      <div class="footer-tagline">Professional Media Solutions</div>
+      <div class="footer-links">
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+      </div>
+      <div class="copyright" style="text-align: center; padding: 10px; font-size: 14px;">
+      <p>© 2025 Movie World. All rights reserved.</p>
+      <br>
+      <p>Developed by Md Sharieff.</p>
+      </div>
+    </div>
+  </footer>
+  <div id="toast"></div>
+  <script>
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => toast.style.display = 'none', 3000);
+    }
+
+    document.getElementById('get-formats-btn').addEventListener('click', async () => {
+      const url = document.getElementById('video-url').value;
+      if (!url) {
+        showToast("Please enter a video URL");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/formats?url=${encodeURIComponent(url)}`);
+        const data = await response.json();
+
+        const select = document.getElementById('format-select');
+        select.innerHTML = ''; // Clear existing
+        const addedQualities = new Set();
+
+        data.formats.forEach(f => {
+          if (!addedQualities.has(f.quality)) {
+            const opt = document.createElement('option');
+            opt.value = f.itag;
+            opt.textContent = f.quality;
+            select.appendChild(opt);
+            addedQualities.add(f.quality);
+          }
+        });
+
+        showToast("Formats loaded");
+      } catch (error) {
+        console.error(error);
+        showToast("Failed to fetch formats");
+      }
+    });
+
+    document.getElementById('download-btn').addEventListener('click', async () => {
+      const url = document.getElementById('video-url').value;
+      const itag = document.getElementById('format-select').value;
+
+      if (!url || !itag) {
+        showToast("Please enter URL and select format");
+        return;
+      }
+
+      showToast("Starting download...");
+
+      const link = document.createElement('a');
+      link.href = `http://localhost:3000/download?url=${encodeURIComponent(url)}&itag=${itag}`;
+      link.setAttribute('download', '');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast("Download triggered.");
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
