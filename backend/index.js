@@ -85,7 +85,8 @@ app.use(express.json());
 app.get('/formats', async (req, res) => {
   const videoURL = req.query.url;
   if (!videoURL || !ytdl.validateURL(videoURL)) {
-    return res.status(400).send('Invalid URL');
+    return res.status(400).json({ error: 'Invalid URL' });
+
   }
 
   try {
@@ -122,7 +123,8 @@ const formats = Array.from(uniqueFormatsMap.values());
     res.json({ title: info.videoDetails.title, formats });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Failed to fetch video formats');
+    res.status(500).json({ error: 'Failed to fetch video formats' });
+
   }
 });
 
@@ -132,7 +134,7 @@ app.get('/download', async (req, res) => {
   const itag = req.query.itag;
 
   if (!videoURL || !itag) {
-    return res.status(400).send('Missing URL or format');
+    return res.status(400).json({ error: 'Missing URL or format' });
   }
 
   try {
@@ -140,7 +142,7 @@ app.get('/download', async (req, res) => {
     const format = ytdl.chooseFormat(info.formats, { quality: itag });
 
     if (!format || !format.url) {
-      return res.status(404).send('Format not found');
+      return res.status(404).json({ error: 'Format not found' });
     }
 
     const title = info.videoDetails.title.replace(/[^\w\s]/gi, '');
@@ -149,7 +151,7 @@ app.get('/download', async (req, res) => {
     ytdl(videoURL, { format }).pipe(res);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Download failed');
+    res.status(500).json({ error: 'Download failed' });
   }
 });
 
